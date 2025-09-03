@@ -14,7 +14,7 @@ Este repositório demonstra como criptografar e descriptografar textos de forma 
 ---
 
 ## 📋 Pré-requisitos
-- .NET 6 ou superior
+- .NET 8
 
 ---
 
