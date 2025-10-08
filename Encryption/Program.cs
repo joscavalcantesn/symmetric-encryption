@@ -1,11 +1,9 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 
 var plainText = "Hello, World!";
-
-// Use a more secure approach for key derivation
 var password = "MySecurePassword123!";
-var salt = RandomNumberGenerator.GetBytes(16); // Store this with encrypted data
+var salt = RandomNumberGenerator.GetBytes(16);
 var masterKey = DeriveKey(password, salt);
 
 var encrypted = Encrypt(plainText, masterKey);
@@ -15,7 +13,6 @@ var decrypted = Decrypt(encrypted, masterKey);
 Console.WriteLine($"Texto descriptografado: {decrypted}");
 Console.WriteLine($"Verificação: {plainText == decrypted}");
 
-//Clear sensitive data from memory
 Array.Clear(masterKey);
 
 const int IvSize = 16;
@@ -30,7 +27,7 @@ static byte[] DeriveKey(string password, ReadOnlySpan<byte> salt)
 static string Encrypt(string plainText, ReadOnlySpan<byte> masterKey)
 {
     if (string.IsNullOrEmpty(plainText))
-        throw new ArgumentException("Plain text cannot be null or empty.", nameof(plainText));
+        throw new ArgumentException("O texto puro não pode ser nulo ou vazio.", nameof(plainText));
 
     var plainBytes = Encoding.UTF8.GetBytes(plainText);
 
@@ -44,10 +41,8 @@ static string Encrypt(string plainText, ReadOnlySpan<byte> masterKey)
 
     using var memoryStream = new MemoryStream();
 
-    // Write IV to the beginning of the stream
     memoryStream.Write(iv);
 
-    // Encrypt the data
     using (var encryptor = aes.CreateEncryptor())
     using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
     {
@@ -57,7 +52,6 @@ static string Encrypt(string plainText, ReadOnlySpan<byte> masterKey)
 
     var result = Convert.ToBase64String(memoryStream.ToArray());
 
-    // Clear sensitive data
     Array.Clear(plainBytes);
     Array.Clear(iv);
 
@@ -67,7 +61,7 @@ static string Encrypt(string plainText, ReadOnlySpan<byte> masterKey)
 static string Decrypt(string cipherText, ReadOnlySpan<byte> masterKey)
 {
     if (string.IsNullOrEmpty(cipherText))
-        throw new ArgumentException("Cipher text cannot be null or empty.", nameof(cipherText));
+        throw new ArgumentException("O texto cifrado não pode ser nulo ou vazio.", nameof(cipherText));
 
     try
     {
@@ -90,7 +84,6 @@ static string Decrypt(string cipherText, ReadOnlySpan<byte> masterKey)
         using var decryptor = aes.CreateDecryptor();
         using var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
 
-        // Pre-allocate buffer to avoid multiple allocations
         var buffer = new byte[encryptedData.Length];
         var totalBytesRead = 0;
         int bytesRead;
@@ -102,7 +95,6 @@ static string Decrypt(string cipherText, ReadOnlySpan<byte> masterKey)
 
         var result = Encoding.UTF8.GetString(buffer, 0, totalBytesRead);
 
-        // Clear sensitive data
         Array.Clear(buffer);
         Array.Clear(cipherData);
 
